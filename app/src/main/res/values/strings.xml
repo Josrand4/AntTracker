@@ -1,3 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AnTracker</string>
+    <!-- App Name -->
+    <string name="app_name">AntTracker</string>
+
+    <!-- Navigation -->
+    <string name="resumen">Resumen</string>
+    <string name="gastos">Gastos</string>
+    <string name="ingresos">Ingresos</string>
+    <string name="reportes">Reportes</string>
+
+    <!-- Actions -->
+    <string name="agregar">Agregar</string>
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="editar">Editar</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="mes_anterior">Mes anterior</string>
+    <string name="mes_siguiente">Mes siguiente</string>
+
+    <!-- Dashboard Labels -->
+    <string name="saldo_disponible">SALDO DISPONIBLE</string>
+    <string name="ingresos_totales">INGRESOS</string>
+    <string name="gastos_totales">GASTOS</string>
+    <string name="gastos_fijos">Gastos Fijos</string>
+    <string name="gastos_variables">Gastos Variables</string>
+    <string name="gastos_hormiga">Gastos Hormiga 🐜</string>
+    <string name="gasto_diario_promedio">Gasto Diario Promedio</string>
+
+    <!-- Descriptions -->
+    <string name="desc_gastos_fijos">Alquiler, servicios, suscripciones</string>
+    <string name="desc_gastos_variables">Supermercado, transporte, salidas</string>
+    <string name="desc_gastos_hormiga">Café, snacks, compras impulsivas</string>
+    <string name="desc_gasto_diario">Basado en los últimos 30 días</string>
+
+    <!-- Transaction Types -->
+    <string name="tipo_fijo">Fijo</string>
+    <string name="tipo_variable">Variable</string>
+    <string name="tipo_hormiga">Hormiga</string>
+
+    <!-- Income Types -->
+    <string name="tipo_salario">Salario</string>
+    <string name="tipo_freelance">Freelance</string>
+    <string name="tipo_inversion">Inversión</string>
+    <string name="tipo_otro">Otro</string>
+
+    <!-- Form Labels -->
+    <string name="monto">Monto</string>
+    <string name="descripcion">Descripción</string>
+    <string name="categoria">Categoría</string>
+    <string name="fecha">Fecha</string>
+    <string name="tipo">Tipo</string>
+    <string name="es_recurrente">Es recurrente</string>
+
+    <!-- Hints -->
+    <string name="hint_monto">0.00</string>
+    <string name="hint_descripcion">Ej: Supermercado semanal</string>
+
+    <!-- Messages -->
+    <string name="confirmar_eliminar">¿Eliminar esta transacción?</string>
+    <string name="transaccion_guardada">Transacción guardada</string>
+    <string name="transaccion_eliminada">Transacción eliminada</string>
+    <string name="campos_requeridos">Completa todos los campos</string>
+    <string name="monto_invalido">Ingresa un monto válido</string>
+
+    <!-- Empty States -->
+    <string name="sin_gastos">No hay gastos este mes</string>
+    <string name="sin_ingresos">No hay ingresos este mes</string>
+    <string name="agregar_primero">Toca + para agregar uno</string>
+
+    <!-- Periods -->
+    <string name="hoy">Hoy</string>
+    <string name="esta_semana">Esta semana</string>
+    <string name="este_mes">Este mes</string>
+    <string name="mes_pasado">Mes pasado</string>
+    <string name="personalizado">Personalizado</string>
 </resources>
