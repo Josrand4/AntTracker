@@ -8,7 +8,6 @@
     android:background="#EDE7E3"
     tools:context=".SignUpActivity">
 
-    <!-- Título -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -22,12 +21,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- Name -->
     <EditText
         android:id="@+id/etName"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:hint="Name"
@@ -38,12 +36,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Email -->
     <EditText
         android:id="@+id/etEmail"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:hint="Email"
@@ -54,12 +51,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Password -->
     <EditText
         android:id="@+id/etPassword"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:hint="Password"
@@ -70,12 +66,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Confirm Password -->
     <EditText
         android:id="@+id/etConfirmPassword"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:hint="Confirm Password"
@@ -86,12 +81,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Botón Sign Up -->
     <Button
         android:id="@+id/btnSignUp"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="24dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:text="SIGN UP"
@@ -102,66 +96,41 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Línea izquierda -->
-    <View
-        android:id="@+id/lineLeft"
+    <LinearLayout
+        android:id="@+id/llOrSection"
         android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#888888"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="30dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="24dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/btnSignUp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/tvOr"/>
+        app:layout_constraintEnd_toEndOf="parent">
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#A6A6A6" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:text="OR"
+            android:textColor="#A6A6A6" />
+        <View android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#A6A6A6" />
+    </LinearLayout>
 
-    <!-- OR -->
-    <TextView
-        android:id="@+id/tvOr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OR"
-        android:textStyle="bold"
-        android:textColor="#000000"
-        app:layout_constraintTop_toTopOf="@id/lineLeft"
-        app:layout_constraintBottom_toBottomOf="@id/lineLeft"
-        app:layout_constraintStart_toEndOf="@id/lineLeft"
-        app:layout_constraintEnd_toStartOf="@id/lineRight"/>
-
-    <!-- Línea derecha -->
-    <View
-        android:id="@+id/lineRight"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#888888"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="24dp"
-        app:layout_constraintTop_toTopOf="@id/lineLeft"
-        app:layout_constraintBottom_toBottomOf="@id/lineLeft"
-        app:layout_constraintStart_toEndOf="@id/tvOr"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Sign Up With -->
-    <TextView
-        android:id="@+id/tvSignWith"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign Up With"
-        android:textColor="#777777"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/lineLeft"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Íconos -->
     <LinearLayout
         android:id="@+id/llIcons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginTop="16dp"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/tvSignWith"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/llOrSection"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -174,16 +143,16 @@
 
     </LinearLayout>
 
-    <!-- Already have account -->
     <TextView
         android:id="@+id/tvSignIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="156dp"
         android:text="Already have an account? Sign In."
         android:textColor="#0F3D2E"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/llIcons"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
