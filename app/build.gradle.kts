@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -46,6 +47,21 @@ dependencies {
     implementation(libs.navigation.ui)
 
     implementation(libs.mpandroidchart)
+
+    // Firebase BOM (maneja versiones automáticamente)
+    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
+    
+    // Firebase Authentication
+    implementation("com.google.firebase:firebase-auth")
+    
+    // Firestore (base de datos)
+    implementation("com.google.firebase:firebase-firestore")
+    
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.5.1")
+
+    // Glide para cargar imágenes
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

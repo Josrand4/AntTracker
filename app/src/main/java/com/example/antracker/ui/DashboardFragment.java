@@ -5,17 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.example.antracker.R;
-import com.example.antracker.data.model.ResumenFinanciero;
-
+import com.example.antracker.data.model.Movimiento;
+import com.example.antracker.data.repository.MovimientoRepository;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class DashboardFragment extends Fragment {
@@ -27,6 +27,12 @@ public class DashboardFragment extends Fragment {
     private Calendar calendarActual;
     private NumberFormat formatoMoneda;
     private SimpleDateFormat formatoFecha;
+    private MovimientoRepository movimientoRepository;
+
+    private double ingresosTotales = 0;
+    private double gastosFijos = 0;
+    private double gastosVariables = 0;
+    private double gastosHormiga = 0;
 
     @Nullable
     @Override
@@ -40,9 +46,11 @@ public class DashboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        movimientoRepository = new MovimientoRepository();
+
         inicializarVistas(view);
         inicializarFormatos();
-        configurarListeners();
+        configurarListeners(view);
         cargarDatosMesActual();
     }
 
@@ -55,9 +63,6 @@ public class DashboardFragment extends Fragment {
         tvGastosHormiga = view.findViewById(R.id.tv_gastos_hormiga);
         tvGastoDiarioPromedio = view.findViewById(R.id.tv_gasto_diario_promedio);
         tvPeriodo = view.findViewById(R.id.tv_periodo);
-
-        view.findViewById(R.id.btn_prev_month).setOnClickListener(v -> cambiarMes(-1));
-        view.findViewById(R.id.btn_next_month).setOnClickListener(v -> cambiarMes(1));
     }
 
     private void inicializarFormatos() {
@@ -66,21 +71,20 @@ public class DashboardFragment extends Fragment {
         formatoFecha = new SimpleDateFormat("MMMM yyyy", new Locale("es", "MX"));
     }
 
-    private void configurarListeners() {
-        // Aquí configuraremos observers cuando tengamos ViewModel
+    private void configurarListeners(View view) {
+        view.findViewById(R.id.btn_prev_month).setOnClickListener(v -> cambiarMes(-1));
+        view.findViewById(R.id.btn_next_month).setOnClickListener(v -> cambiarMes(1));
     }
 
     private void cargarDatosMesActual() {
         actualizarTituloPeriodo();
-        // Por ahora usamos datos de ejemplo
-        cargarDatosEjemplo();
+        cargarDatosReales();
     }
 
     private void cambiarMes(int delta) {
         calendarActual.add(Calendar.MONTH, delta);
         actualizarTituloPeriodo();
-        // Aquí cargaremos datos reales del mes seleccionado
-        cargarDatosEjemplo();
+        cargarDatosReales();
     }
 
     private void actualizarTituloPeriodo() {
@@ -88,29 +92,73 @@ public class DashboardFragment extends Fragment {
         tvPeriodo.setText(titulo.toUpperCase());
     }
 
-    private void cargarDatosEjemplo() {
-        // Datos de ejemplo para visualizar el layout
-        ResumenFinanciero resumen = new ResumenFinanciero();
-        resumen.setIngresosTotales(25000.00);
-        resumen.setGastosFijos(8000.00);
-        resumen.setGastosVariables(5000.00);
-        resumen.setGastosHormiga(1200.00);
-        resumen.setDiasEnPeriodo(30);
+    private void cargarDatosReales() {
+        // Resetear totales
+        ingresosTotales = 0;
+        gastosFijos = 0;
+        gastosVariables = 0;
+        gastosHormiga = 0;
 
-        actualizarUI(resumen);
+        // Calcular fechas de inicio y fin del mes
+        Calendar inicioMes = (Calendar) calendarActual.clone();
+        inicioMes.set(Calendar.DAY_OF_MONTH, 1);
+        inicioMes.set(Calendar.HOUR_OF_DAY, 0);
+        inicioMes.set(Calendar.MINUTE, 0);
+        inicioMes.set(Calendar.SECOND, 0);
+
+        Calendar finMes = (Calendar) calendarActual.clone();
+        finMes.set(Calendar.DAY_OF_MONTH, finMes.getActualMaximum(Calendar.DAY_OF_MONTH));
+        finMes.set(Calendar.HOUR_OF_DAY, 23);
+        finMes.set(Calendar.MINUTE, 59);
+        finMes.set(Calendar.SECOND, 59);
+
+        movimientoRepository.obtenerMovimientosPorFecha(inicioMes.getTime(), finMes.getTime(), task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Movimiento movimiento = document.toObject(Movimiento.class);
+                    procesarMovimiento(movimiento);
+                }
+                actualizarUI();
+            }
+        });
     }
 
-    private void actualizarUI(ResumenFinanciero resumen) {
-        tvSaldoFinal.setText(formatoMoneda.format(resumen.getSaldoFinal()));
-        tvIngresosTotales.setText(formatoMoneda.format(resumen.getIngresosTotales()));
-        tvGastosTotales.setText(formatoMoneda.format(resumen.getGastosTotales()));
-        tvGastosFijos.setText(formatoMoneda.format(resumen.getGastosFijos()));
-        tvGastosVariables.setText(formatoMoneda.format(resumen.getGastosVariables()));
-        tvGastosHormiga.setText(formatoMoneda.format(resumen.getGastosHormiga()));
-        tvGastoDiarioPromedio.setText(formatoMoneda.format(resumen.getGastoDiarioPromedio()));
+    private void procesarMovimiento(Movimiento movimiento) {
+        if (movimiento.getTipo().equalsIgnoreCase("ingreso")) {
+            ingresosTotales += movimiento.getMonto();
+        } else if (movimiento.getTipo().equalsIgnoreCase("gasto")) {
+            switch (movimiento.getCategoria().toLowerCase()) {
+                case "fijo":
+                    gastosFijos += movimiento.getMonto();
+                    break;
+                case "variable":
+                    gastosVariables += movimiento.getMonto();
+                    break;
+                case "hormiga":
+                    gastosHormiga += movimiento.getMonto();
+                    break;
+            }
+        }
+    }
 
-        // Cambiar color del saldo según sea positivo o negativo
-        if (resumen.getSaldoFinal() >= 0) {
+    private void actualizarUI() {
+        double gastosTotales = gastosFijos + gastosVariables + gastosHormiga;
+        double saldoFinal = ingresosTotales - gastosTotales;
+
+        // gasto diario promedio
+        int diasEnMes = calendarActual.getActualMaximum(Calendar.DAY_OF_MONTH);
+        double gastoDiarioPromedio = diasEnMes > 0 ? gastosTotales / diasEnMes : 0;
+
+        tvIngresosTotales.setText(formatoMoneda.format(ingresosTotales));
+        tvGastosTotales.setText(formatoMoneda.format(gastosTotales));
+        tvGastosFijos.setText(formatoMoneda.format(gastosFijos));
+        tvGastosVariables.setText(formatoMoneda.format(gastosVariables));
+        tvGastosHormiga.setText(formatoMoneda.format(gastosHormiga));
+        tvGastoDiarioPromedio.setText(formatoMoneda.format(gastoDiarioPromedio));
+        tvSaldoFinal.setText(formatoMoneda.format(saldoFinal));
+
+        // Color del saldo
+        if (saldoFinal >= 0) {
             tvSaldoFinal.setTextColor(getResources().getColor(R.color.verde_ingreso, null));
         } else {
             tvSaldoFinal.setTextColor(getResources().getColor(R.color.rojo_gasto, null));
