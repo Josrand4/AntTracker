@@ -1,16 +1,18 @@
 package com.example.antracker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.example.antracker.R;
 import com.example.antracker.ui.DashboardFragment;
+import com.example.antracker.ui.MovimientosFragment;
+import com.example.antracker.ui.ReportesFragment;
+import com.example.antracker.ui.PerfilFragment;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,31 +40,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configurarNavegacion() {
-//        bottomNav.setOnItemSelectedListener(item -> {
-//            Fragment fragment = null;
-//            int itemId = item.getItemId();
-//
-//            if (itemId == R.id.nav_dashboard) {
-//                fragment = new DashboardFragment();
-//            } else if (itemId == R.id.nav_gastos) {
-//                // fragment = new GastosFragment(); // Lo crearemos después
-//            } else if (itemId == R.id.nav_ingresos) {
-//                // fragment = new IngresosFragment();
-//            } else if (itemId == R.id.nav_reportes) {
-//                // fragment = new ReportesFragment();
-//            }
-//
-//            if (fragment != null) {
-//                cargarFragmento(fragment);
-//                return true;
-//            }
-//            return false;
-//        });
-//
-//        fabAdd.setOnClickListener(v -> {
-//            // Abrir diálogo para agregar gasto/ingreso rápido
-//            mostrarDialogoAgregar();
-//        });
+        bottomNav.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Fragment fragment = null;
+
+            if (itemId == R.id.nav_dashboard) {
+                fragment = new DashboardFragment();
+            } else if (itemId == R.id.nav_movimientos) {
+                fragment = new MovimientosFragment();
+            } else if (itemId == R.id.nav_reportes) {
+                fragment = new ReportesFragment();
+            } else if (itemId == R.id.nav_perfil) {
+                fragment = new PerfilFragment();
+            }
+
+            if (fragment != null) {
+                cargarFragmento(fragment);
+                return true;
+            }
+            return false;
+        });
+
+        fabAdd.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AgregarMovimientoActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void cargarFragmento(Fragment fragment) {
@@ -70,9 +72,5 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.nav_host_fragment, fragment)
                 .commit();
-    }
-
-    private void mostrarDialogoAgregar() {
-        // Implementaremos esto después
     }
 }
