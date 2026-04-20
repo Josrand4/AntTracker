@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EDE7E3"
+    android:background="?attr/colorSurface"
     android:padding="24dp">
 
     <TextView
@@ -14,7 +14,7 @@
         android:text="Perfil"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#000000"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -53,7 +53,7 @@
                 android:text="Nombre Usuario"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="#000000"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginTop="16dp" />
 
             <!-- Email -->
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:text="usuario@email.com"
                 android:textSize="16sp"
-                android:textColor="#666666"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:layout_marginTop="8dp" />
 
         </LinearLayout>

@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="?attr/colorSurface">
 
         <!-- Selector de período -->
         <com.google.android.material.card.MaterialCardView
@@ -59,7 +60,7 @@
             android:id="@+id/card_saldo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/surface"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:cardElevation="4dp"
             android:layout_marginBottom="16dp">
 
@@ -290,7 +291,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Gastos Hormiga 🐜"
+                        android:text="Gastos Hormiga"
                         android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
 
                     <TextView

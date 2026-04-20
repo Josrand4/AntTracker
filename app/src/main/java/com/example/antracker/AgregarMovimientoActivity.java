@@ -11,6 +11,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.antracker.data.model.Movimiento;
 import com.example.antracker.data.repository.MovimientoRepository;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -130,9 +133,16 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
         movimiento.setDescripcion(descripcion);
         movimiento.setFecha(calendar.getTime());
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            movimiento.setUserId(currentUser.getUid());
+        }
+
         // Guardar en Firestore
         movimientoRepository.agregarMovimiento(movimiento,
                 documentReference -> {
+                    // Asignar el ID generado por Firestore
+                    movimiento.setId(documentReference.getId());
                     Toast.makeText(this, "Movimiento guardado exitosamente", Toast.LENGTH_SHORT).show();
                     finish();
                 },

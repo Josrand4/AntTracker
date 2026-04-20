@@ -121,7 +121,7 @@ public class MovimientosFragment extends Fragment {
 
     private void cargarMovimientos() {
         movimientoRepository.obtenerMovimientos(task -> {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful() && task.getResult() != null) {
                 listaMovimientos.clear();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Movimiento movimiento = document.toObject(Movimiento.class);

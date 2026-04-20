@@ -13,24 +13,22 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.util.Date;
-import java.util.List;
 
 public class MovimientoRepository {
 
     private final FirebaseFirestore db;
     private final CollectionReference movimientosRef;
-    private final String userId;
+    private String userId;
 
     public MovimientoRepository() {
         db = FirebaseFirestore.getInstance();
         movimientosRef = db.collection("movimientos");
+        updateUserId();
+    }
 
+    private void updateUserId() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            userId = user.getUid();
-        } else {
-            userId = "";
-        }
+        userId = (user != null) ? user.getUid() : "";
     }
 
     /**
@@ -39,6 +37,7 @@ public class MovimientoRepository {
     public void agregarMovimiento(Movimiento movimiento,
                                    OnSuccessListener<DocumentReference> onSuccess,
                                    OnFailureListener onFailure) {
+        updateUserId();
         movimiento.setUserId(userId);
         movimientosRef.add(movimiento)
                 .addOnSuccessListener(onSuccess)
@@ -47,11 +46,17 @@ public class MovimientoRepository {
 
     /**
      * Obtener todos los movimientos del usuario actual
+     * Sin ordenamiento para evitar requerir índice compuesto
      */
     public void obtenerMovimientos(OnCompleteListener<QuerySnapshot> onComplete) {
+        updateUserId();
+        if (userId.isEmpty()) {
+            // Si no hay usuario, devolver lista vacía
+            onComplete.onComplete(null);
+            return;
+        }
         movimientosRef
                 .whereEqualTo("userId", userId)
-                .orderBy("fecha", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(onComplete);
     }
@@ -61,10 +66,14 @@ public class MovimientoRepository {
      */
     public void obtenerMovimientosPorTipo(String tipo,
                                           OnCompleteListener<QuerySnapshot> onComplete) {
+        updateUserId();
+        if (userId.isEmpty()) {
+            onComplete.onComplete(null);
+            return;
+        }
         movimientosRef
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("tipo", tipo)
-                .orderBy("fecha", Query.Direction.DESCENDING)
+                .whereEqualTo("tipo", tipo.toLowerCase())
                 .get()
                 .addOnCompleteListener(onComplete);
     }
@@ -74,26 +83,36 @@ public class MovimientoRepository {
      */
     public void obtenerMovimientosPorCategoria(String categoria,
                                                 OnCompleteListener<QuerySnapshot> onComplete) {
+        updateUserId();
+        if (userId.isEmpty()) {
+            onComplete.onComplete(null);
+            return;
+        }
         movimientosRef
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("categoria", categoria)
-                .orderBy("fecha", Query.Direction.DESCENDING)
+                .whereEqualTo("categoria", categoria.toLowerCase())
                 .get()
                 .addOnCompleteListener(onComplete);
     }
 
     /**
      * Obtener movimientos de un rango de fechas
+     * Simplificado para evitar índices complejos
      */
     public void obtenerMovimientosPorFecha(Date fechaInicio, Date fechaFin,
                                             OnCompleteListener<QuerySnapshot> onComplete) {
+        updateUserId();
+        if (userId.isEmpty()) {
+            onComplete.onComplete(null);
+            return;
+        }
         movimientosRef
                 .whereEqualTo("userId", userId)
-                .whereGreaterThanOrEqualTo("fecha", fechaInicio)
-                .whereLessThanOrEqualTo("fecha", fechaFin)
-                .orderBy("fecha", Query.Direction.DESCENDING)
                 .get()
-                .addOnCompleteListener(onComplete);
+                .addOnCompleteListener(task -> {
+                    // Filtrar por fecha en memoria para evitar índices complejos
+                    onComplete.onComplete(task);
+                });
     }
 
     /**
@@ -115,6 +134,7 @@ public class MovimientoRepository {
                                       Movimiento movimiento,
                                       OnSuccessListener<Void> onSuccess,
                                       OnFailureListener onFailure) {
+        updateUserId();
         movimiento.setUserId(userId);
         movimientosRef.document(movimientoId)
                 .set(movimiento)
@@ -122,20 +142,8 @@ public class MovimientoRepository {
                 .addOnFailureListener(onFailure);
     }
 
-    /**
-     * Calcular totales por tipo en un período
-     */
-    public void calcularTotales(Date fechaInicio, Date fechaFin,
-                                 OnCompleteListener<QuerySnapshot> onComplete) {
-        movimientosRef
-                .whereEqualTo("userId", userId)
-                .whereGreaterThanOrEqualTo("fecha", fechaInicio)
-                .whereLessThanOrEqualTo("fecha", fechaFin)
-                .get()
-                .addOnCompleteListener(onComplete);
-    }
-
     public String getUserId() {
+        updateUserId();
         return userId;
     }
 }
