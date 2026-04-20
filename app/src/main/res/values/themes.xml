@@ -1,8 +1,29 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.AnTracker" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Colores principales -->
+        <item name="colorPrimary">@color/verde_oscuro</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/verde_oscuro_transparente</item>
+        <item name="colorOnPrimaryContainer">@color/verde_oscuro</item>
+        
+        <!-- Colores de superficie -->
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorSurfaceVariant">@color/surface_variant_light</item>
+        <item name="colorOnSurfaceVariant">@color/gris_oscuro</item>
+        
+        <!-- Colores de outline -->
+        <item name="colorOutline">@color/gris_medio</item>
+        <item name="colorOutlineVariant">@color/gris_claro</item>
+        
+        <!-- Colores de fondo -->
+        <item name="android:colorBackground">@color/surface_light</item>
+        <item name="colorOnBackground">@color/black</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/verde_oscuro</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.AnTracker" parent="Base.Theme.AnTracker" />

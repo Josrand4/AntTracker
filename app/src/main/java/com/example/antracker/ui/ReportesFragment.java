@@ -26,6 +26,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -113,20 +114,29 @@ public class ReportesFragment extends Fragment {
         finMes.set(Calendar.SECOND, 59);
 
         movimientoRepository.obtenerMovimientosPorFecha(inicioMes.getTime(), finMes.getTime(), task -> {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful() && task.getResult() != null) {
                 Map<String, Double> gastosPorCategoria = new HashMap<>();
                 double totalGastos = 0;
 
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Movimiento movimiento = document.toObject(Movimiento.class);
+                    movimiento.setId(document.getId());
                     
-                    // Solo procesar gastos para el pie chart
-                    if (movimiento.getTipo().equalsIgnoreCase("gasto")) {
-                        String categoria = movimiento.getCategoria();
-                        double monto = movimiento.getMonto();
-                        
-                        gastosPorCategoria.merge(categoria, monto, Double::sum);
-                        totalGastos += monto;
+                    // Filtrar por fecha en memoria
+                    if (movimiento.getFecha() != null) {
+                        Date fechaMov = movimiento.getFecha();
+                        if (!fechaMov.before(inicioMes.getTime()) && !fechaMov.after(finMes.getTime())) {
+                            // Solo procesar gastos para el pie chart
+                            if (movimiento.getTipo() != null && movimiento.getTipo().equalsIgnoreCase("gasto")) {
+                                String categoria = movimiento.getCategoria();
+                                double monto = movimiento.getMonto();
+                                
+                                if (categoria != null) {
+                                    gastosPorCategoria.merge(categoria.toLowerCase(), monto, Double::sum);
+                                    totalGastos += monto;
+                                }
+                            }
+                        }
                     }
                 }
 

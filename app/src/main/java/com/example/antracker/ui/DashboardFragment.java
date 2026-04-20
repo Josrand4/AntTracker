@@ -113,10 +113,18 @@ public class DashboardFragment extends Fragment {
         finMes.set(Calendar.SECOND, 59);
 
         movimientoRepository.obtenerMovimientosPorFecha(inicioMes.getTime(), finMes.getTime(), task -> {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful() && task.getResult() != null) {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Movimiento movimiento = document.toObject(Movimiento.class);
-                    procesarMovimiento(movimiento);
+                    movimiento.setId(document.getId());
+                    
+                    // Filtrar por fecha en memoria
+                    if (movimiento.getFecha() != null) {
+                        Date fechaMov = movimiento.getFecha();
+                        if (!fechaMov.before(inicioMes.getTime()) && !fechaMov.after(finMes.getTime())) {
+                            procesarMovimiento(movimiento);
+                        }
+                    }
                 }
                 actualizarUI();
             }

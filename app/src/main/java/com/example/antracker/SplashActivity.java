@@ -18,10 +18,10 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // Inicializar Firebase Auth
+        // inicializa Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Verificar sesión después del delay
+        // verifica sesión después del delay
         new Handler(Looper.getMainLooper()).postDelayed(this::verificarYRedirigir, SPLASH_DELAY);
     }
 
@@ -30,10 +30,10 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent;
 
         if (currentUser != null) {
-            // Usuario autenticado - ir al Dashboard
+            // Usuario autenticado lleva al Dashboard
             intent = new Intent(SplashActivity.this, MainActivity.class);
         } else {
-            // No hay sesión - ir al Login
+            // no hay sesión ir al Login
             intent = new Intent(SplashActivity.this, LoginActivity.class);
         }
 
