@@ -1,0 +1,23 @@
+🔷 FRONTEND (Android — Java + XML)
+Pantallas / Activities:
+
+SplashActivity — Pantalla de carga inicial. Verifica si el usuario ya tiene sesión activa; si es así, redirige directo al Dashboard.
+LoginActivity — Pantalla de inicio de sesión con botón de Google Sign-In usando Firebase Authentication. No hay registro manual, el Sign Up ocurre automáticamente al hacer login por primera vez con Google.
+DashboardActivity (MainActivity) — Pantalla principal con resumen financiero del mes actual:
+
+Ingresos totales
+Gastos totales (desglosados por categoría)
+Saldo final (Ingresos − Gastos)
+Gasto diario promedio
+Acceso rápido a agregar un nuevo movimiento
+
+
+AgregarMovimientoActivity — Formulario para registrar un ingreso o gasto. Campos: tipo (Ingreso / Gasto), categoría (Fijo, Variable, Hormiga), monto, descripción, fecha.
+ListaMovimientosActivity — Lista scrolleable de todos los movimientos del usuario, con filtros por tipo y categoría.
+ReporteActivity — Pantalla de reporte visual con gráficas (PieChart o BarChart usando la librería MPAndroidChart):
+
+Distribución de gastos por categoría
+Evolución mensual
+
+
+PerfilActivity — Foto, nombre y correo del usuario (traídos de Google). Botón de Cerrar sesión.

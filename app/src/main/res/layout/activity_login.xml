@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EDE7E3"
+    android:background="?attr/colorSurface"
     tools:context=".LoginActivity">
 
     <TextView
@@ -15,7 +15,7 @@
         android:text="Sign In"
         android:textSize="32sp"
         android:textStyle="bold"
-        android:textColor="#000000"
+        android:textColor="?attr/colorOnSurface"
         android:layout_marginStart="24dp"
         android:layout_marginTop="40dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -66,47 +66,73 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/llOrSection"
+    <View
+        android:id="@+id/divider1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="1dp"
         android:layout_marginTop="32dp"
-        android:layout_marginHorizontal="24dp"
-        android:gravity="center"
-        android:orientation="horizontal"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/colorOutlineVariant"
         app:layout_constraintTop_toBottomOf="@id/btnSignIn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toStartOf="@id/tvOr" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="#A6A6A6" />
+    <TextView
+        android:id="@+id/tvOr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="O"
+        android:textSize="14sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintTop_toTopOf="@id/divider1"
+        app:layout_constraintBottom_toBottomOf="@id/divider1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:text="OR"
-            android:textColor="#A6A6A6" />
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="24dp"
+        android:background="?attr/colorOutlineVariant"
+        app:layout_constraintTop_toTopOf="@id/divider1"
+        app:layout_constraintStart_toEndOf="@id/tvOr"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="#A6A6A6" />
-    </LinearLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGoogleSignIn"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:text="Continuar con Google"
+        android:textColor="?attr/colorPrimary"
+        android:textStyle="bold"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/ic_google"
+        app:iconGravity="textStart"
+        app:iconPadding="12dp"
+        app:strokeColor="?attr/colorPrimary"
+        app:strokeWidth="1.5dp"
+        app:cornerRadius="12dp"
+        app:layout_constraintTop_toBottomOf="@id/tvOr"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/tvSignUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Don’t have an account? Sign Up."
-        android:textColor="#0F3D2E"
+        android:text="Don't have an account? Sign Up."
+        android:textColor="?attr/colorPrimary"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/llOrSection"
+        app:layout_constraintTop_toBottomOf="@id/btnGoogleSignIn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

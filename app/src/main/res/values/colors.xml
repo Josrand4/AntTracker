@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Colores principales de la app -->
+    <color name="verde_oscuro">#0F3D2E</color>
+    <color name="verde_oscuro_transparente">#1A0F3D2E</color>
+    
+    <!-- Colores de superficie para modo claro -->
+    <color name="surface_light">#F5F5F5</color>
+    <color name="surface_variant_light">#E8E8E8</color>
+    <color name="gris_claro">#CCCCCC</color>
+    <color name="gris_medio">#999999</color>
+    <color name="gris_oscuro">#666666</color>
+    
+    <!-- Colores funcionales -->
+    <color name="verde_ingreso">#4CAF50</color>
+    <color name="rojo_gasto">#F44336</color>
+    <color name="naranja_hormiga">#FF9800</color>
+    <color name="azul_fijo">#2196F3</color>
+    <color name="morado_variable">#9C27B0</color>
+    <color name="surface">#F5F5F5</color>
 </resources>

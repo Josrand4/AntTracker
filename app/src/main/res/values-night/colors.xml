@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores específicos para modo oscuro -->
+    <color name="surface_light">#1C1B1F</color>
+    <color name="surface_variant_light">#49454F</color>
+    <color name="gris_claro">#49454F</color>
+    <color name="gris_medio">#938F99</color>
+    <color name="gris_oscuro">#CAC4D0</color>
+    
+    <!-- Colores funcionales se mantienen -->
+    <color name="verde_ingreso">#4CAF50</color>
+    <color name="rojo_gasto">#F44336</color>
+    <color name="naranja_hormiga">#FF9800</color>
+    <color name="azul_fijo">#2196F3</color>
+    <color name="morado_variable">#9C27B0</color>
+</resources>
