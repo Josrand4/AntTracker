@@ -4,9 +4,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.ImageButton;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.antracker.data.model.Movimiento;
+
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -18,8 +22,17 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
     private NumberFormat formatoMoneda;
     private SimpleDateFormat formatoFecha;
 
-    public MovimientosAdapter(List<Movimiento> movimientos) {
+    // 🔹 Listener para eliminar
+    public interface OnDeleteClickListener {
+        void onDeleteClick(Movimiento movimiento);
+    }
+
+    private OnDeleteClickListener deleteListener;
+
+    // 🔹 Constructor con listener
+    public MovimientosAdapter(List<Movimiento> movimientos, OnDeleteClickListener listener) {
         this.movimientos = movimientos;
+        this.deleteListener = listener;
         this.formatoMoneda = NumberFormat.getCurrencyInstance(new Locale("es", "MX"));
         this.formatoFecha = new SimpleDateFormat("dd/MM/yyyy", new Locale("es", "MX"));
     }
@@ -55,6 +68,13 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
             holder.tvMonto.setTextColor(holder.itemView.getContext().getResources()
                     .getColor(R.color.rojo_gasto, null));
         }
+
+        // 🔹 Click en botón eliminar
+        holder.btnEliminar.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onDeleteClick(movimiento);
+            }
+        });
     }
 
     @Override
@@ -68,7 +88,9 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+
         TextView tvDescripcion, tvCategoria, tvFecha, tvMonto;
+        ImageButton btnEliminar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,6 +98,9 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
             tvCategoria = itemView.findViewById(R.id.tv_categoria);
             tvFecha = itemView.findViewById(R.id.tv_fecha);
             tvMonto = itemView.findViewById(R.id.tv_monto);
+
+            // 🔹 Botón eliminar
+            btnEliminar = itemView.findViewById(R.id.btn_eliminar);
         }
     }
 }
