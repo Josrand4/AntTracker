@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.antracker.AgregarMovimientoActivity;
+import com.example.antracker.EditarMovimientoActivity;
 import com.example.antracker.MovimientosAdapter;
 import com.example.antracker.R;
 import com.example.antracker.data.model.Movimiento;
@@ -25,18 +26,19 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MovimientosFragment extends Fragment {
 
-    private Spinner spinnerFiltroTipo;
-    private Spinner spinnerFiltroCategoria;
-    private RecyclerView recyclerView;
+    private Spinner              spinnerFiltroTipo;
+    private Spinner              spinnerFiltroCategoria;
+    private RecyclerView         recyclerView;
     private FloatingActionButton fabAdd;
 
-    private MovimientosAdapter adapter;
-    private List<Movimiento> listaMovimientos;
-    private List<Movimiento> listaFiltrada;
+    private MovimientosAdapter   adapter;
+    private List<Movimiento>     listaMovimientos;  // fuente de datos completa
+    private List<Movimiento>     listaFiltrada;     // datos mostrados
     private MovimientoRepository movimientoRepository;
 
     @Nullable
@@ -63,137 +65,144 @@ public class MovimientosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        cargarMovimientos();
+        cargarMovimientos(); // Refresca al volver de Agregar / Editar
     }
 
+    // ── Inicialización ────────────────────────────────────────────────────────────
+
     private void inicializarVistas(View view) {
-        spinnerFiltroTipo = view.findViewById(R.id.spinner_filtro_tipo);
+        spinnerFiltroTipo      = view.findViewById(R.id.spinner_filtro_tipo);
         spinnerFiltroCategoria = view.findViewById(R.id.spinner_filtro_categoria);
-        recyclerView = view.findViewById(R.id.recycler_movimientos);
-        fabAdd = view.findViewById(R.id.fab_add_movimiento);
+        recyclerView           = view.findViewById(R.id.recycler_movimientos);
+        fabAdd                 = view.findViewById(R.id.fab_add_movimiento);
     }
 
     private void configurarSpinners() {
         String[] tipos = {"Todos", "Ingreso", "Gasto"};
-        ArrayAdapter<String> tipoAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, tipos);
-        tipoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFiltroTipo.setAdapter(tipoAdapter);
+        spinnerFiltroTipo.setAdapter(crearAdapter(tipos));
 
-        String[] categorias = {"Todas", "Fijo", "Variable", "Hormiga", "Salario", "Otros"};
-        ArrayAdapter<String> categoriaAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, categorias);
-        categoriaAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFiltroCategoria.setAdapter(categoriaAdapter);
+        String[] categorias = {"Todas", "Fijo", "Variable", "Hormiga", "Salario", "Freelance", "Inversiones", "Otros"};
+        spinnerFiltroCategoria.setAdapter(crearAdapter(categorias));
+    }
+
+    private ArrayAdapter<String> crearAdapter(String[] items) {
+        ArrayAdapter<String> a = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, items);
+        a.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        return a;
     }
 
     private void configurarRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         listaMovimientos = new ArrayList<>();
-        listaFiltrada = new ArrayList<>();
+        listaFiltrada    = new ArrayList<>();
 
-
-        adapter = new MovimientosAdapter(listaFiltrada, movimiento -> {
-            mostrarDialogoEliminar(movimiento);
-        });
+        adapter = new MovimientosAdapter(
+                listaFiltrada,
+                this::mostrarDialogoEliminar,   // delete
+                this::abrirEditar               // edit  ← NUEVO
+        );
 
         recyclerView.setAdapter(adapter);
     }
 
     private void configurarListeners() {
-        spinnerFiltroTipo.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        AdapterView.OnItemSelectedListener filtroListener = new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
                 aplicarFiltros();
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
+            public void onNothingSelected(AdapterView<?> p) {}
+        };
 
-        spinnerFiltroCategoria.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                aplicarFiltros();
-            }
+        spinnerFiltroTipo.setOnItemSelectedListener(filtroListener);
+        spinnerFiltroCategoria.setOnItemSelectedListener(filtroListener);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        fabAdd.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), AgregarMovimientoActivity.class);
-            startActivity(intent);
-        });
+        fabAdd.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AgregarMovimientoActivity.class)));
     }
+
+    // ── Datos ─────────────────────────────────────────────────────────────────────
 
     private void cargarMovimientos() {
         movimientoRepository.obtenerMovimientos(task -> {
-            if (task != null && task.isSuccessful() && task.getResult() != null) {
+            if (task == null || !task.isSuccessful() || task.getResult() == null) return;
 
-                listaMovimientos.clear();
+            listaMovimientos.clear();
 
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Movimiento movimiento = document.toObject(Movimiento.class);
-                    movimiento.setId(document.getId());
-                    listaMovimientos.add(movimiento);
-                }
-
-                aplicarFiltros();
+            for (QueryDocumentSnapshot doc : task.getResult()) {
+                Movimiento m = doc.toObject(Movimiento.class);
+                m.setId(doc.getId());
+                listaMovimientos.add(m);
             }
+
+            // Ordenar por fecha descendente (más reciente primero)
+            Collections.sort(listaMovimientos, (a, b) -> {
+                if (a.getFecha() == null && b.getFecha() == null) return 0;
+                if (a.getFecha() == null) return 1;
+                if (b.getFecha() == null) return -1;
+                return b.getFecha().compareTo(a.getFecha());
+            });
+
+            aplicarFiltros();
         });
     }
 
     private void aplicarFiltros() {
-        String tipoSeleccionado = spinnerFiltroTipo.getSelectedItem().toString();
-        String categoriaSeleccionada = spinnerFiltroCategoria.getSelectedItem().toString();
+        String tipoSel      = spinnerFiltroTipo.getSelectedItem().toString();
+        String categoriaSel = spinnerFiltroCategoria.getSelectedItem().toString();
 
         listaFiltrada.clear();
 
-        for (Movimiento mov : listaMovimientos) {
+        for (Movimiento m : listaMovimientos) {
+            boolean tipoOk = tipoSel.equals("Todos")
+                    || m.getTipo().equalsIgnoreCase(tipoSel);
 
-            boolean tipoMatch = tipoSeleccionado.equals("Todos") ||
-                    mov.getTipo().equalsIgnoreCase(tipoSeleccionado.toLowerCase());
+            boolean categoriaOk = categoriaSel.equals("Todas")
+                    || m.getCategoria().equalsIgnoreCase(categoriaSel);
 
-            boolean categoriaMatch = categoriaSeleccionada.equals("Todas") ||
-                    mov.getCategoria().equalsIgnoreCase(categoriaSeleccionada.toLowerCase());
-
-            if (tipoMatch && categoriaMatch) {
-                listaFiltrada.add(mov);
-            }
+            if (tipoOk && categoriaOk) listaFiltrada.add(m);
         }
 
         adapter.notifyDataSetChanged();
     }
 
+    // ── Acciones ──────────────────────────────────────────────────────────────────
+
+    /** Abre EditarMovimientoActivity pasando todos los datos del movimiento */
+    private void abrirEditar(Movimiento movimiento) {
+        Intent intent = new Intent(requireContext(), EditarMovimientoActivity.class);
+        intent.putExtra(EditarMovimientoActivity.EXTRA_MOVIMIENTO_ID,          movimiento.getId());
+        intent.putExtra(EditarMovimientoActivity.EXTRA_MOVIMIENTO_TIPO,        movimiento.getTipo());
+        intent.putExtra(EditarMovimientoActivity.EXTRA_MOVIMIENTO_CATEGORIA,   movimiento.getCategoria());
+        intent.putExtra(EditarMovimientoActivity.EXTRA_MOVIMIENTO_MONTO,       movimiento.getMonto());
+        intent.putExtra(EditarMovimientoActivity.EXTRA_MOVIMIENTO_DESCRIPCION, movimiento.getDescripcion());
+        intent.putExtra(EditarMovimientoActivity.EXTRA_MOVIMIENTO_FECHA_MS,
+                movimiento.getFecha() != null ? movimiento.getFecha().getTime() : System.currentTimeMillis());
+        startActivity(intent);
+    }
 
     private void mostrarDialogoEliminar(Movimiento movimiento) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Eliminar movimiento")
-                .setMessage("¿Seguro que deseas eliminar este movimiento?")
-                .setPositiveButton("Sí", (dialog, which) -> eliminarMovimiento(movimiento))
+                .setMessage("¿Deseas eliminar \"" + movimiento.getDescripcion() + "\"?")
+                .setPositiveButton("Eliminar", (d, w) -> eliminarMovimiento(movimiento))
                 .setNegativeButton("Cancelar", null)
                 .show();
     }
-
 
     private void eliminarMovimiento(Movimiento movimiento) {
         if (movimiento.getId() == null) return;
 
         movimientoRepository.eliminarMovimiento(
                 movimiento.getId(),
-
-
                 unused -> {
                     listaMovimientos.remove(movimiento);
                     aplicarFiltros();
                 },
-
-
-                e -> {
-                    e.printStackTrace();
-                }
+                e -> e.printStackTrace()
         );
     }
 }

@@ -37,6 +37,11 @@
             android:name=".AgregarMovimientoActivity"
             android:exported="false" />
 
+        <!-- ✅ Nueva activity para editar movimientos -->
+        <activity
+            android:name=".EditarMovimientoActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

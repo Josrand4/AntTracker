@@ -7,32 +7,30 @@
     android:background="?attr/colorSurface"
     android:fillViewport="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="24dp">
 
+        <!-- Título -->
         <TextView
-            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reportes"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:layout_marginBottom="24dp" />
 
-        <!-- Resumen -->
+        <!-- Tarjeta resumen -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_resumen"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            app:layout_constraintStart_toStartOf="parent">
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,7 +48,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Total Gastos"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <TextView
@@ -58,9 +56,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="$0.00"
-                        android:textSize="24sp"
+                        android:textSize="22sp"
                         android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
+                        android:textColor="@color/rojo_gasto"
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
@@ -74,7 +72,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Mayor Categoría"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <TextView
@@ -82,7 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
                         android:layout_marginTop="4dp" />
@@ -90,65 +88,53 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Gráfica de Pastel -->
+        <!-- ── Gráfica de Dona ── -->
         <TextView
-            android:id="@+id/tvPieChartTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Distribución de Gastos"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
-            android:layout_marginTop="32dp"
-            app:layout_constraintTop_toBottomOf="@id/card_resumen"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:layout_marginBottom="12dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:layout_constraintTop_toBottomOf="@id/tvPieChartTitle"
-            app:layout_constraintStart_toStartOf="parent">
+            app:cardElevation="4dp">
 
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pie_chart_gastos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp" />
+                android:padding="8dp" />
         </androidx.cardview.widget.CardView>
 
-        <!-- Gráfica de Barras -->
+        <!-- ── Gráfica de Barras ── -->
         <TextView
-            android:id="@+id/tvBarChartTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Evolución Mensual"
+            android:text="Evolución Mensual (últimos 6 meses)"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
-            android:layout_marginTop="400dp"
-            app:layout_constraintTop_toBottomOf="@id/card_resumen"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:layout_marginBottom="12dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="260dp"
             android:layout_marginBottom="24dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:layout_constraintTop_toBottomOf="@id/tvBarChartTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:cardElevation="4dp">
 
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/bar_chart_evolucion"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp" />
+                android:padding="8dp" />
         </androidx.cardview.widget.CardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </ScrollView>
