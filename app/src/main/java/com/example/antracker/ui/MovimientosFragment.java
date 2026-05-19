@@ -15,13 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.antracker.AgregarMovimientoActivity;
 import com.example.antracker.EditMovimientoActivity;
 import com.example.antracker.MovimientosAdapter;
 import com.example.antracker.R;
 import com.example.antracker.data.model.Movimiento;
 import com.example.antracker.data.repository.MovimientoRepository;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,6 @@ public class MovimientosFragment extends Fragment {
     private Spinner spinnerFiltroTipo;
     private Spinner spinnerFiltroCategoria;
     private RecyclerView recyclerView;
-    private FloatingActionButton fabAdd;
 
     private MovimientosAdapter adapter;
     private List<Movimiento> listaMovimientos;
@@ -70,7 +67,6 @@ public class MovimientosFragment extends Fragment {
         spinnerFiltroTipo = view.findViewById(R.id.spinner_filtro_tipo);
         spinnerFiltroCategoria = view.findViewById(R.id.spinner_filtro_categoria);
         recyclerView = view.findViewById(R.id.recycler_movimientos);
-        fabAdd = view.findViewById(R.id.fab_add_movimiento);
     }
 
     private void configurarSpinners() {
@@ -126,11 +122,6 @@ public class MovimientosFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        fabAdd.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), AgregarMovimientoActivity.class);
-            startActivity(intent);
         });
     }
 
