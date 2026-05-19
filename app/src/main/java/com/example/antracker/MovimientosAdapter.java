@@ -1,16 +1,14 @@
 package com.example.antracker;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.ImageButton;
-
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.antracker.data.model.Movimiento;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -21,20 +19,29 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
     private List<Movimiento> movimientos;
     private NumberFormat formatoMoneda;
     private SimpleDateFormat formatoFecha;
+    private OnItemClickListener listener;
+    private OnEliminarClickListener eliminarListener;
 
-    // 🔹 Listener para eliminar
-    public interface OnDeleteClickListener {
-        void onDeleteClick(Movimiento movimiento);
+    public interface OnItemClickListener {
+        void onItemClick(Movimiento movimiento);
     }
 
-    private OnDeleteClickListener deleteListener;
+    public interface OnEliminarClickListener {
+        void onEliminarClick(Movimiento movimiento, int position);
+    }
 
-    // 🔹 Constructor con listener
-    public MovimientosAdapter(List<Movimiento> movimientos, OnDeleteClickListener listener) {
+    public MovimientosAdapter(List<Movimiento> movimientos) {
         this.movimientos = movimientos;
-        this.deleteListener = listener;
         this.formatoMoneda = NumberFormat.getCurrencyInstance(new Locale("es", "MX"));
         this.formatoFecha = new SimpleDateFormat("dd/MM/yyyy", new Locale("es", "MX"));
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public void setOnEliminarClickListener(OnEliminarClickListener listener) {
+        this.eliminarListener = listener;
     }
 
     @NonNull
@@ -69,10 +76,17 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
                     .getColor(R.color.rojo_gasto, null));
         }
 
-        // 🔹 Click en botón eliminar
+        // Click en el item para editar
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(movimiento);
+            }
+        });
+
+        // Click en botón eliminar
         holder.btnEliminar.setOnClickListener(v -> {
-            if (deleteListener != null) {
-                deleteListener.onDeleteClick(movimiento);
+            if (eliminarListener != null) {
+                eliminarListener.onEliminarClick(movimiento, position);
             }
         });
     }
@@ -88,7 +102,6 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
         TextView tvDescripcion, tvCategoria, tvFecha, tvMonto;
         ImageButton btnEliminar;
 
@@ -98,8 +111,6 @@ public class MovimientosAdapter extends RecyclerView.Adapter<MovimientosAdapter.
             tvCategoria = itemView.findViewById(R.id.tv_categoria);
             tvFecha = itemView.findViewById(R.id.tv_fecha);
             tvMonto = itemView.findViewById(R.id.tv_monto);
-
-            // 🔹 Botón eliminar
             btnEliminar = itemView.findViewById(R.id.btn_eliminar);
         }
     }

@@ -161,17 +161,29 @@
             app:layout_constraintTop_toBottomOf="@id/tvFechaLabel"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <!-- Checkbox Recurrente -->
+        <CheckBox
+            android:id="@+id/cb_recurrente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Movimiento recurrente (mensual)"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintTop_toBottomOf="@id/et_fecha"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <!-- Botones -->
         <Button
             android:id="@+id/btn_guardar"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="32dp"
             android:background="@drawable/bg_button"
             android:text="GUARDAR"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/et_fecha"
+            app:layout_constraintTop_toBottomOf="@id/cb_recurrente"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button

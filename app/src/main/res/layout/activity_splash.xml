@@ -10,7 +10,7 @@
         android:id="@+id/tvAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="AntTracker"
+        android:text="AnTracker"
         android:textSize="48sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"

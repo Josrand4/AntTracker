@@ -1,5 +1,6 @@
 package com.example.antracker.ui;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,22 +9,20 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.antracker.AgregarMovimientoActivity;
+import com.example.antracker.EditMovimientoActivity;
 import com.example.antracker.MovimientosAdapter;
 import com.example.antracker.R;
 import com.example.antracker.data.model.Movimiento;
 import com.example.antracker.data.repository.MovimientoRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +62,7 @@ public class MovimientosFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Recargar datos cuando se vuelve a este fragment
         cargarMovimientos();
     }
 
@@ -89,16 +89,22 @@ public class MovimientosFragment extends Fragment {
 
     private void configurarRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-
         listaMovimientos = new ArrayList<>();
         listaFiltrada = new ArrayList<>();
+        adapter = new MovimientosAdapter(listaFiltrada);
+        recyclerView.setAdapter(adapter);
 
-
-        adapter = new MovimientosAdapter(listaFiltrada, movimiento -> {
-            mostrarDialogoEliminar(movimiento);
+        // Configurar click para editar
+        adapter.setOnItemClickListener(movimiento -> {
+            Intent intent = new Intent(requireContext(), EditMovimientoActivity.class);
+            intent.putExtra(EditMovimientoActivity.EXTRA_MOVIMIENTO_ID, movimiento.getId());
+            startActivity(intent);
         });
 
-        recyclerView.setAdapter(adapter);
+        // Configurar click para eliminar
+        adapter.setOnEliminarClickListener((movimiento, position) -> {
+            mostrarDialogoConfirmacionEliminar(movimiento);
+        });
     }
 
     private void configurarListeners() {
@@ -128,18 +134,38 @@ public class MovimientosFragment extends Fragment {
         });
     }
 
+    private void mostrarDialogoConfirmacionEliminar(Movimiento movimiento) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Eliminar movimiento")
+                .setMessage("¿Estás seguro de que deseas eliminar \"" + movimiento.getDescripcion() + "\"?")
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    eliminarMovimiento(movimiento);
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void eliminarMovimiento(Movimiento movimiento) {
+        movimientoRepository.eliminarMovimiento(movimiento.getId(),
+                aVoid -> {
+                    Toast.makeText(requireContext(), "Movimiento eliminado", Toast.LENGTH_SHORT).show();
+                    listaMovimientos.remove(movimiento);
+                    aplicarFiltros();
+                },
+                e -> {
+                    Toast.makeText(requireContext(), "Error al eliminar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void cargarMovimientos() {
         movimientoRepository.obtenerMovimientos(task -> {
-            if (task != null && task.isSuccessful() && task.getResult() != null) {
-
+            if (task.isSuccessful() && task.getResult() != null) {
                 listaMovimientos.clear();
-
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Movimiento movimiento = document.toObject(Movimiento.class);
                     movimiento.setId(document.getId());
                     listaMovimientos.add(movimiento);
                 }
-
                 aplicarFiltros();
             }
         });
@@ -152,10 +178,8 @@ public class MovimientosFragment extends Fragment {
         listaFiltrada.clear();
 
         for (Movimiento mov : listaMovimientos) {
-
             boolean tipoMatch = tipoSeleccionado.equals("Todos") ||
                     mov.getTipo().equalsIgnoreCase(tipoSeleccionado.toLowerCase());
-
             boolean categoriaMatch = categoriaSeleccionada.equals("Todas") ||
                     mov.getCategoria().equalsIgnoreCase(categoriaSeleccionada.toLowerCase());
 
@@ -165,35 +189,5 @@ public class MovimientosFragment extends Fragment {
         }
 
         adapter.notifyDataSetChanged();
-    }
-
-
-    private void mostrarDialogoEliminar(Movimiento movimiento) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Eliminar movimiento")
-                .setMessage("¿Seguro que deseas eliminar este movimiento?")
-                .setPositiveButton("Sí", (dialog, which) -> eliminarMovimiento(movimiento))
-                .setNegativeButton("Cancelar", null)
-                .show();
-    }
-
-
-    private void eliminarMovimiento(Movimiento movimiento) {
-        if (movimiento.getId() == null) return;
-
-        movimientoRepository.eliminarMovimiento(
-                movimiento.getId(),
-
-
-                unused -> {
-                    listaMovimientos.remove(movimiento);
-                    aplicarFiltros();
-                },
-
-
-                e -> {
-                    e.printStackTrace();
-                }
-        );
     }
 }

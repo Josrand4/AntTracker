@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -24,6 +25,7 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
     private RadioGroup rgTipo;
     private Spinner spinnerCategoria;
     private EditText etMonto, etDescripcion, etFecha;
+    private CheckBox cbRecurrente;
     private Button btnGuardar, btnCancelar;
 
     private Calendar calendar;
@@ -44,6 +46,9 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
         calendar = Calendar.getInstance();
         dateFormat = new SimpleDateFormat("dd/MM/yyyy", new Locale("es", "MX"));
         etFecha.setText(dateFormat.format(calendar.getTime()));
+
+        // Verificar recurrente por defecto al inicio
+        verificarRecurrentePorDefecto();
     }
 
     private void inicializarVistas() {
@@ -52,6 +57,7 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
         etMonto = findViewById(R.id.et_monto);
         etDescripcion = findViewById(R.id.et_descripcion);
         etFecha = findViewById(R.id.et_fecha);
+        cbRecurrente = findViewById(R.id.cb_recurrente);
         btnGuardar = findViewById(R.id.btn_guardar);
         btnCancelar = findViewById(R.id.btn_cancelar);
     }
@@ -76,7 +82,34 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
             }
             newAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerCategoria.setAdapter(newAdapter);
+
+            // Verificar si hay que marcar recurrente por defecto
+            verificarRecurrentePorDefecto();
         });
+
+        // Listener para detectar cambio en categoría seleccionada
+        spinnerCategoria.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+                verificarRecurrentePorDefecto();
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+    }
+
+    private void verificarRecurrentePorDefecto() {
+        String categoria = spinnerCategoria.getSelectedItem().toString().toLowerCase();
+        int tipoId = rgTipo.getCheckedRadioButtonId();
+        boolean esGasto = tipoId == R.id.rb_gasto;
+        boolean esIngreso = tipoId == R.id.rb_ingreso;
+
+        // Marcar recurrente por defecto si es gasto fijo o ingreso salario
+        boolean debeSerRecurrente = (esGasto && categoria.equals("fijo")) ||
+                (esIngreso && categoria.equals("salario"));
+
+        cbRecurrente.setChecked(debeSerRecurrente);
     }
 
     private void configurarListeners() {
@@ -106,7 +139,7 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
         String categoria = spinnerCategoria.getSelectedItem().toString();
 
         int tipoId = rgTipo.getCheckedRadioButtonId();
-        String tipo = (tipoId == R.id.rb_ingreso) ? "Ingreso" : "Gasto";
+        String tipo = (tipoId == R.id.rb_ingreso) ? "ingreso" : "gasto";
 
         if (montoStr.isEmpty()) {
             etMonto.setError("Ingrese el monto");
@@ -132,6 +165,7 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
         movimiento.setMonto(monto);
         movimiento.setDescripcion(descripcion);
         movimiento.setFecha(calendar.getTime());
+        movimiento.setEsRecurrente(cbRecurrente.isChecked());
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {

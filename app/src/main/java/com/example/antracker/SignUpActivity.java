@@ -17,7 +17,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private UsuarioRepository usuarioRepository;
 
-    private EditText etName, etEmail, etPassword;
+    private EditText etName, etEmail, etPassword, etConfirmPassword;
     private Button btnSignUp;
     private TextView tvSignIn;
 
@@ -26,11 +26,11 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        // inicializar Firebase Auth
+        // Inicializar Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         usuarioRepository = new UsuarioRepository();
 
-        // inicializar vistas
+        // Inicializar vistas
         inicializarVistas();
         configurarListeners();
     }
@@ -40,19 +40,19 @@ public class SignUpActivity extends AppCompatActivity {
         tvSignIn = findViewById(R.id.tvSignIn);
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
-        
-
         etPassword = findViewById(R.id.etPassword);
+        etConfirmPassword = findViewById(R.id.etConfirmPassword);
     }
 
     private void configurarListeners() {
-        //  registro
+        // Botón de registro
         btnSignUp.setOnClickListener(v -> registrarUsuario());
 
         // Ir a Login si ya tiene cuenta
         tvSignIn.setOnClickListener(v -> {
             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
             startActivity(intent);
+            finish();
         });
     }
 
@@ -60,7 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
         String nombre = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
-        String confirmPassword = ((EditText)findViewById(R.id.etConfirmPassword)).getText().toString().trim();
+        String confirmPassword = etConfirmPassword.getText().toString().trim();
 
         // Validaciones
         if (nombre.isEmpty()) {
@@ -84,50 +84,78 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         if (!password.equals(confirmPassword)) {
-            ((EditText)findViewById(R.id.etConfirmPassword)).setError("Las contraseñas no coinciden");
+            etConfirmPassword.setError("Las contraseñas no coinciden");
             return;
         }
 
-        //  usuario con Firebase Auth
+        btnSignUp.setEnabled(false);
+
+        // Crear usuario con Firebase Auth
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
+                    btnSignUp.setEnabled(true);
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
-                        
-                        //  información adicional en Firestore
-                        Usuario nuevoUsuario = new Usuario(
-                                user.getUid(),
-                                nombre,
-                                email,
-                                null  // Sin foto de perfil para registro manual
-                        );
 
-                        usuarioRepository.guardarUsuario(nuevoUsuario,
-                                aVoid -> {
-                                    Toast.makeText(SignUpActivity.this, 
-                                            "¡Registro exitoso! Bienvenido " + nombre, 
-                                            Toast.LENGTH_SHORT).show();
-                                    navigateToMainActivity();
-                                },
-                                e -> {
-                                    // Aún así navegamos si el auth funcionó
-                                    Toast.makeText(SignUpActivity.this, 
-                                            "Registro exitoso", 
-                                            Toast.LENGTH_SHORT).show();
-                                    navigateToMainActivity();
-                                });
+                        if (user != null) {
+                            // Actualizar display name
+                            user.updateProfile(new com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                    .setDisplayName(nombre)
+                                    .build());
+
+                            // Guardar información adicional en Firestore
+                            Usuario nuevoUsuario = new Usuario(
+                                    user.getUid(),
+                                    nombre,
+                                    email,
+                                    null  // Sin foto de perfil para registro manual
+                            );
+
+                            usuarioRepository.guardarUsuario(nuevoUsuario,
+                                    aVoid -> {
+                                        // Enviar email de verificación (2FA)
+                                        enviarEmailVerificacion(user, email, password);
+                                    },
+                                    e -> {
+                                        // Aún así enviar verificación
+                                        enviarEmailVerificacion(user, email, password);
+                                    });
+                        }
                     } else {
-                        String errorMessage = task.getException() != null ? 
+                        String errorMessage = task.getException() != null ?
                                 task.getException().getMessage() : "Error desconocido";
-                        Toast.makeText(SignUpActivity.this, 
-                                "Error en el registro: " + errorMessage, 
+                        Toast.makeText(SignUpActivity.this,
+                                "Error en el registro: " + errorMessage,
                                 Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
-    private void navigateToMainActivity() {
-        Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+    private void enviarEmailVerificacion(FirebaseUser user, String email, String password) {
+        user.sendEmailVerification()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(SignUpActivity.this,
+                                "Registro exitoso. Se ha enviado un enlace de verificación a tu correo.",
+                                Toast.LENGTH_LONG).show();
+
+                        // Ir a verificación de 2 pasos
+                        Intent intent = new Intent(SignUpActivity.this, TwoFactorAuthActivity.class);
+                        intent.putExtra(TwoFactorAuthActivity.EXTRA_EMAIL, email);
+                        intent.putExtra(TwoFactorAuthActivity.EXTRA_PASSWORD, password);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(SignUpActivity.this,
+                                "Registro exitoso, pero hubo un error al enviar el correo de verificación.",
+                                Toast.LENGTH_LONG).show();
+                        navigateToLogin();
+                    }
+                });
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
