@@ -12,15 +12,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.antracker.data.model.Movimiento;
 import com.example.antracker.data.repository.MovimientoRepository;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
+import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
-public class AgregarMovimientoActivity extends AppCompatActivity {
+public class EditMovimientoActivity extends AppCompatActivity {
+
+    public static final String EXTRA_MOVIMIENTO_ID = "movimiento_id";
 
     private RadioGroup rgTipo;
     private Spinner spinnerCategoria;
@@ -31,24 +30,27 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
     private Calendar calendar;
     private SimpleDateFormat dateFormat;
     private MovimientoRepository movimientoRepository;
+    private String movimientoId;
+    private Movimiento movimientoActual;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_agregar_movimiento);
+        setContentView(R.layout.activity_editar_movimiento);
+
+        movimientoId = getIntent().getStringExtra(EXTRA_MOVIMIENTO_ID);
+        if (movimientoId == null || movimientoId.isEmpty()) {
+            Toast.makeText(this, "Error: ID de movimiento no válido", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         movimientoRepository = new MovimientoRepository();
 
         inicializarVistas();
         configurarSpinners();
         configurarListeners();
-
-        calendar = Calendar.getInstance();
-        dateFormat = new SimpleDateFormat("dd/MM/yyyy", new Locale("es", "MX"));
-        etFecha.setText(dateFormat.format(calendar.getTime()));
-
-        // Verificar recurrente por defecto al inicio
-        verificarRecurrentePorDefecto();
+        cargarDatosMovimiento();
     }
 
     private void inicializarVistas() {
@@ -60,6 +62,9 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
         cbRecurrente = findViewById(R.id.cb_recurrente);
         btnGuardar = findViewById(R.id.btn_guardar);
         btnCancelar = findViewById(R.id.btn_cancelar);
+
+        calendar = Calendar.getInstance();
+        dateFormat = new SimpleDateFormat("dd/MM/yyyy", new Locale("es", "MX"));
     }
 
     private void configurarSpinners() {
@@ -71,6 +76,8 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
 
         rgTipo.setOnCheckedChangeListener((group, checkedId) -> {
             ArrayAdapter<String> newAdapter;
+            boolean esRecurrentePorDefecto = false;
+
             if (checkedId == R.id.rb_ingreso) {
                 String[] categoriasIngreso = {"Salario", "Freelance", "Inversiones", "Otros"};
                 newAdapter = new ArrayAdapter<>(this,
@@ -87,7 +94,6 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
             verificarRecurrentePorDefecto();
         });
 
-        // Listener para detectar cambio en categoría seleccionada
         spinnerCategoria.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
@@ -114,7 +120,7 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
 
     private void configurarListeners() {
         etFecha.setOnClickListener(v -> mostrarDatePicker());
-        btnGuardar.setOnClickListener(v -> guardarMovimiento());
+        btnGuardar.setOnClickListener(v -> guardarCambios());
         btnCancelar.setOnClickListener(v -> finish());
     }
 
@@ -133,7 +139,75 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    private void guardarMovimiento() {
+    private void cargarDatosMovimiento() {
+        FirebaseFirestore.getInstance()
+                .collection("movimientos")
+                .document(movimientoId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        movimientoActual = documentSnapshot.toObject(Movimiento.class);
+                        if (movimientoActual != null) {
+                            movimientoActual.setId(documentSnapshot.getId());
+                            poblarCampos();
+                        }
+                    } else {
+                        Toast.makeText(this, "Movimiento no encontrado", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error al cargar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+    }
+
+    private void poblarCampos() {
+        // Tipo
+        if (movimientoActual.getTipo().equalsIgnoreCase("ingreso")) {
+            rgTipo.check(R.id.rb_ingreso);
+        } else {
+            rgTipo.check(R.id.rb_gasto);
+        }
+
+        // Categoría
+        String categoria = movimientoActual.getCategoria();
+        String[] categorias;
+        if (movimientoActual.getTipo().equalsIgnoreCase("ingreso")) {
+            categorias = new String[]{"Salario", "Freelance", "Inversiones", "Otros"};
+        } else {
+            categorias = new String[]{"Fijo", "Variable", "Hormiga"};
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, categorias);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCategoria.setAdapter(adapter);
+
+        // Seleccionar la categoría correcta
+        for (int i = 0; i < categorias.length; i++) {
+            if (categorias[i].equalsIgnoreCase(categoria)) {
+                spinnerCategoria.setSelection(i);
+                break;
+            }
+        }
+
+        // Monto
+        etMonto.setText(String.valueOf(movimientoActual.getMonto()));
+
+        // Descripción
+        etDescripcion.setText(movimientoActual.getDescripcion());
+
+        // Fecha
+        if (movimientoActual.getFecha() != null) {
+            calendar.setTime(movimientoActual.getFecha());
+            etFecha.setText(dateFormat.format(calendar.getTime()));
+        }
+
+        // Recurrente
+        cbRecurrente.setChecked(movimientoActual.isEsRecurrente());
+    }
+
+    private void guardarCambios() {
         String montoStr = etMonto.getText().toString().trim();
         String descripcion = etDescripcion.getText().toString().trim();
         String categoria = spinnerCategoria.getSelectedItem().toString();
@@ -159,29 +233,22 @@ public class AgregarMovimientoActivity extends AppCompatActivity {
             return;
         }
 
-        Movimiento movimiento = new Movimiento();
-        movimiento.setTipo(tipo.toLowerCase());
-        movimiento.setCategoria(categoria.toLowerCase());
-        movimiento.setMonto(monto);
-        movimiento.setDescripcion(descripcion);
-        movimiento.setFecha(calendar.getTime());
-        movimiento.setEsRecurrente(cbRecurrente.isChecked());
-
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            movimiento.setUserId(currentUser.getUid());
-        }
+        // Actualizar objeto
+        movimientoActual.setTipo(tipo.toLowerCase());
+        movimientoActual.setCategoria(categoria.toLowerCase());
+        movimientoActual.setMonto(monto);
+        movimientoActual.setDescripcion(descripcion);
+        movimientoActual.setFecha(calendar.getTime());
+        movimientoActual.setEsRecurrente(cbRecurrente.isChecked());
 
         // Guardar en Firestore
-        movimientoRepository.agregarMovimiento(movimiento,
-                documentReference -> {
-                    // Asignar el ID generado por Firestore
-                    movimiento.setId(documentReference.getId());
-                    Toast.makeText(this, "Movimiento guardado exitosamente", Toast.LENGTH_SHORT).show();
+        movimientoRepository.actualizarMovimiento(movimientoId, movimientoActual,
+                aVoid -> {
+                    Toast.makeText(this, "Movimiento actualizado exitosamente", Toast.LENGTH_SHORT).show();
                     finish();
                 },
                 e -> {
-                    Toast.makeText(this, "Error al guardar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Error al actualizar: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 }

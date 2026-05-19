@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.example.antracker.R;
 import com.example.antracker.data.model.Movimiento;
 import com.example.antracker.data.repository.MovimientoRepository;
+import com.example.antracker.ui.dialog.MonthYearPickerDialog;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -74,6 +75,23 @@ public class DashboardFragment extends Fragment {
     private void configurarListeners(View view) {
         view.findViewById(R.id.btn_prev_month).setOnClickListener(v -> cambiarMes(-1));
         view.findViewById(R.id.btn_next_month).setOnClickListener(v -> cambiarMes(1));
+        
+        // Click en el periodo para abrir selector de mes/año
+        tvPeriodo.setOnClickListener(v -> mostrarSelectorMesAnio());
+    }
+
+    private void mostrarSelectorMesAnio() {
+        int year = calendarActual.get(Calendar.YEAR);
+        int month = calendarActual.get(Calendar.MONTH);
+        
+        MonthYearPickerDialog dialog = MonthYearPickerDialog.newInstance(year, month);
+        dialog.setListener((selectedYear, selectedMonth) -> {
+            calendarActual.set(Calendar.YEAR, selectedYear);
+            calendarActual.set(Calendar.MONTH, selectedMonth);
+            actualizarTituloPeriodo();
+            cargarDatosReales();
+        });
+        dialog.show(getParentFragmentManager(), "MonthYearPicker");
     }
 
     private void cargarDatosMesActual() {

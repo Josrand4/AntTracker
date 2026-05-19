@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AntTracker</string>
+    <string name="app_name">AnTracker</string>
 
     <string name="resumen">Resumen</string>
     <string name="gastos">Gastos</string>
@@ -20,7 +20,7 @@
     <string name="gastos_totales">GASTOS</string>
     <string name="gastos_fijos">Gastos Fijos</string>
     <string name="gastos_variables">Gastos Variables</string>
-    <string name="gastos_hormiga">Gastos Hormiga 🐜</string>
+    <string name="gastos_hormiga">Gastos Hormiga </string>
     <string name="gasto_diario_promedio">Gasto Diario Promedio</string>
 
     <string name="desc_gastos_fijos">Alquiler, servicios, suscripciones</string>
